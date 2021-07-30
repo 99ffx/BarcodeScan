@@ -1,0 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;500&display=swap');
+
+body{
+  font-family: 'Prompt', sans-serif;
+  background: linear-gradient(
+    90deg,
+    #5ee7bc,
+    #2a79c7 );
+}
