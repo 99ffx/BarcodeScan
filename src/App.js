@@ -1,154 +1,229 @@
-import React, {useState} from 'react';
-import img1 from "./Picture/registered.png";
+import React, { useState } from "react";
+// import img1 from "./Picture/registered.png";
 import "./App.css";
 //import { object } from 'prop-types';
-import axios from 'axios';
-import {useForm} from "react-hook-form";
-
+import axios from "axios";
+// import { useForm } from "react-hook-form";
 
 const App = () => {
-  const url = 'http://localhost:8000/mode/barcode';
+  const url = "http://localhost:8000/mode/transacno";
 
-  const [barcode, setBarcode] = useState("");
-  const [barcodeErr, setBarcodeErr] = useState({});
+  const [transacno, setTransacno] = useState("");
+  const [transacnoErr, setTransacnoErr] = useState({});
   const [buttonPopup, setButtonPopup] = useState(false);
-  const [editPopup, setEditPopup] = useState(false);
+  // const [editPopup, setEditPopup] = useState(false);
   const [name, setName] = useState("");
   const [amountPallet, setAmountPallet] = useState("");
   const [weight, setWeight] = useState("");
   const [lotNo, setLotNo] = useState("");
   const [effDate, setEffDate] = useState("");
-  
+  const [SKUNo, setSKUNo] = useState("");
+  const [isEdit, setIsEdit] = useState(false);
 
   const onSubmit = (e) => {
-    
     e.preventDefault();
-    
-    axios.get(url + "?barcode=" + barcode)
-    .then(res => {
-        
-         if (res.data.status === "Done."){
-             console.log(res);
-             setButtonPopup(true);
-             setName(res.data.name);
-             setAmountPallet(res.data.amont_pallet);
-             setWeight(res.data.weight_database);
-             setLotNo(res.data.lot);
-             setEffDate(res.data.eff_date);
-         }
-         else{
-             console.log(res)
-             alert("เกิดข้อผิดพลาด โปรดตรวจสอบเลขบาร์โค้ดอีกครั้ง");
-            
-         }
-        })
-      
+
+    axios.get(url + "?transacno=" + transacno).then((res) => {
+      if (res.data.status === "Done.") {
+        setButtonPopup(true);
+        setName(res.data.name);
+        setSKUNo(res.data.soitem);
+        setAmountPallet(res.data.amont_pallet);
+        setWeight(res.data.weight_database);
+        setLotNo(res.data.lot);
+        setEffDate(res.data.eff_date);
+      } else {
+        alert("เกิดข้อผิดพลาด โปรดตรวจสอบเลขบาร์โค้ดอีกครั้ง");
+      }
+    });
 
     const isValid = formValidation();
-    if(isValid === true){
+    if (isValid === true) {
       // refresh after sent data completely
-      setBarcode("");
+      // setTransacno("");
     }
-  }
+  };
 
   const formValidation = () => {
-    const barcodeErr = {};
+    const transacnoErr = {};
     let isValid = true;
 
-    if (barcode.length < 13 || barcode.length > 13 && !Number(barcode) ) {
-      barcodeErr.barcodeShort = "โปรดกรอกเลขบาร์โค้ดให้ถูกต้อง";
+    if (
+      transacno.length < 13 ||
+      (transacno.length > 13 && !Number(transacno))
+    ) {
+      transacnoErr.transacnoShort = "โปรดกรอกเลขบาร์โค้ดให้ถูกต้อง";
       isValid = false;
     }
 
-
-    setBarcodeErr(barcodeErr);
+    setTransacnoErr(transacnoErr);
     return isValid;
-  }
+  };
 
-
-
-  
   function Popup(props) {
+    const onClose = () => {
+      props.setTrigger(false);
+      setTransacno("");
+    };
+
     const handleReject = (e) => {
       e.preventDefault();
-      
-  
+      setIsEdit(false);
+
       const data = {
-        "Barcode": barcode,
-        "name" : "",
-        "weight_database": "",
-        "amount_pallet": "",
-        "status": "Reject"
-       }
-        
-      axios.get(`http://localhost:8000/mode/reject?barcode=${barcode}`)
-      .then(res => 
-        console.log(data));
-         alert("รอตรวจสอบจากฝ่ายผลิต")
-        props.setTrigger(false);
-        
-    }
-    
+        transacno: transacno,
+        name: localStorage.getItem("name_product"),
+        weight_database: localStorage.getItem("weight"),
+        amount_pallet: localStorage.getItem("amount_pallet"),
+        status: "Reject",
+      };
 
-    return(props.trigger) ? (
-        <div className="popup-box">
-            <div className="box">
-                {/* <button className="close-icon" onClick={() => handleReset}>x</button> */}
-                <button className="form-input-btn2" onClick={() => props.setTrigger(false)}>ข้อมูลถูกต้อง</button>
-                <button className="form-input-btn1" onClick={handleReject}>แก้ไขข้อมูลสินค้า</button>
-                {props.children}
-            </div>
-  
+      axios
+        .get(`http://localhost:8000/mode/reject?transacno=${transacno}`, data)
+        .then(() => {
+          console.log(data);
+          // localStorage.removeItem("name_product");
+          // localStorage.removeItem("weight");
+          // localStorage.removeItem("amount_pallet");
+        });
+      onClose();
+    };
+
+    return props.trigger ? (
+      <div className="popup-box">
+        <div className="box">
+          {!isEdit && (
+            <button className="form-input-btn2" onClick={() => onClose()}>
+              ข้อมูลถูกต้อง
+            </button>
+          )}
+          {!isEdit && (
+            <button className="form-input-btn1" onClick={() => setIsEdit(true)}>
+              แก้ไขข้อมูลสินค้า
+            </button>
+          )}
+          {isEdit && (
+            <button className="form-input-btn2" onClick={handleReject}>
+              บันทึกผล
+            </button>
+          )}
+          {isEdit && (
+            <button
+              className="form-input-btn1"
+              onClick={() => setIsEdit(false)}
+            >
+              ยกเลิก
+            </button>
+          )}
+          {props.children}
         </div>
-    ) : "";
-  };
-  
+      </div>
+    ) : (
+      ""
+    );
+  }
+
   return (
-    
-    <div class="container" id="container">
-      <div class="form-container input-container">
-          {/* <img src={img1} alt="img1" width="100" height="100" /> */}
-          <h1>โปรดกรอกเลข Transaction</h1>
-          <form onSubmit={onSubmit}>
-        <input
-              className='form-input'
-              type="text"
-              name="barcode"
-              value={barcode === "" ? barcode : undefined}
-              onChange={(e)=>setBarcode(e.target.value)}
-              placeholder="Transaction Number"
-              id="barcode" 
-              />
-              <br/>
-              {Object.keys(barcodeErr).map((key) => {
-                return <div style={{color : "red"}}>{barcodeErr[key]}</div>
-              })}
-              <button className="form-input-btn" type="submit">
-              ส่งข้อมูล
-              </button> 
-              {buttonPopup && <Popup trigger={buttonPopup} setTrigger={setButtonPopup}>
+    <div className="container" id="container">
+      <div className="form-container input-container">
+        <h1>โปรดกรอกเลข Transaction</h1>
+        <form onSubmit={onSubmit}>
+          <input
+            className="form-input"
+            type="text"
+            name="transacno"
+            value={transacno === "" ? transacno : undefined}
+            onChange={(e) => setTransacno(e.target.value)}
+            placeholder="Transaction Number"
+            id="transacno"
+          />
+          <br />
+          {Object.keys(transacnoErr).map((key, index) => {
+            return (
+              <div key={index} style={{ color: "red" }}>
+                {transacnoErr[key]}
+              </div>
+            );
+          })}
+          <button className="form-input-btn" type="submit">
+            ส่งข้อมูล
+          </button>
+          {/* {buttonPopup && <Popup trigger={buttonPopup} setTrigger={setButtonPopup}> */}
+          {buttonPopup && (
+            <Popup trigger={buttonPopup} setTrigger={setButtonPopup}>
               <p>ข้อมูลสินค้า</p>
-              ชื่อสินค้า: {name}<br />
-              จำนวนสินค้า: {amountPallet}<br />
-              น้ำหนักรวม: {weight}<br />
-              Lot No. : {lotNo}<br />
-              วันที่ผลิต: {effDate}<br /><br /><br />
-              </Popup>} 
-            </form>
-        </div>
-        <div class="overlay-container">
-		{/* <div class="overlay">
-			<div class="overlay-panel overlay-left">
-				<h1>ATACO</h1>
-        <h2>SMART</h2>
-        <h2>WAREHOUSE</h2>
-			</div>
-		</div> */}
-	</div>
+              <div>
+                <span>ชื่อสินค้า: </span>
+                <input
+                  type="text"
+                  placeholder="กรุณากรอกชื่อสินค้า"
+                  name="name"
+                  defaultValue={name}
+                  onChange={(e) =>
+                    localStorage.setItem("name_product", e.target.value)
+                  }
+                  disabled={!isEdit}
+                />
+              </div>
+              <div>
+                <span>จำนวนสินค้า: </span>
+                <input
+                  type="text"
+                  placeholder="กรุณาใส่จำนวนสินค้า"
+                  name="amount_pallet"
+                  defaultValue={amountPallet}
+                  onChange={(e) =>
+                    localStorage.setItem("amount_pallet", e.target.value)
+                  }
+                  disabled={!isEdit}
+                />
+              </div>
+              <div>
+                <span>น้ำหนักรวม: </span>
+                <input
+                  type="text"
+                  placeholder="กรุณาใส่น้ำหนักสินค้ารวม"
+                  name="weight_database"
+                  defaultValue={weight}
+                  onChange={(e) =>
+                    localStorage.setItem("weight", e.target.value)
+                  }
+                  disabled={!isEdit}
+                />
+              </div>
+              <div>
+                <span>SKU No.: </span>
+                <input
+                  type="text"
+                  name="SKU_No"
+                  defaultValue={SKUNo}
+                  disabled
+                />
+              </div>
+              <div>
+                <span>Lot No.: </span>
+                <input
+                  type="text"
+                  defaultValue={lotNo}
+                  name="lot_no"
+                  disabled
+                />
+              </div>
+              <div>
+                <span>วันที่ผลิต: </span>
+                <input
+                  type="text"
+                  name="created_date"
+                  defaultValue={effDate}
+                  disabled
+                />
+              </div>
+            </Popup>
+          )}
+        </form>
+      </div>
     </div>
-
-    
-  )
-}
+  );
+};
 
 export default App;
