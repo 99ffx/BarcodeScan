@@ -1,9 +1,6 @@
 import React, { useState } from "react";
-// import img1 from "./Picture/registered.png";
 import "./App.css";
-//import { object } from 'prop-types';
 import axios from "axios";
-// import { useForm } from "react-hook-form";
 
 const App = () => {
   const url = "http://localhost:8000/mode/transacno";
@@ -72,19 +69,22 @@ const App = () => {
 
       const data = {
         transacno: transacno,
-        name: localStorage.getItem("name_product"),
-        weight_database: localStorage.getItem("weight"),
+        // name: name,
+        // weight_database: weight,
+        // amount_pallet: amountPallet,
+        SKU_no: localStorage.getItem("lot_no"),
+        weight_database: localStorage.getItem("weight_database"),
         amount_pallet: localStorage.getItem("amount_pallet"),
-        status: "Reject",
+        // status: "Reject",
       };
 
       axios
         .get(`http://localhost:8000/mode/reject?transacno=${transacno}`, data)
         .then(() => {
           console.log(data);
-          // localStorage.removeItem("name_product");
-          // localStorage.removeItem("weight");
-          // localStorage.removeItem("amount_pallet");
+          //localStorage.removeItem("name_product");
+          localStorage.removeItem("weight_database");
+          localStorage.removeItem("amount_pallet");
         });
       onClose();
     };
@@ -156,11 +156,21 @@ const App = () => {
                 <span>ชื่อสินค้า: </span>
                 <input
                   type="text"
-                  placeholder="กรุณากรอกชื่อสินค้า"
-                  name="name"
+                  name="name_product"
                   defaultValue={name}
+                  disabled
+                />
+              </div>
+              <div>
+                {/* <p>{name}</p> */}
+                <span>SKU No.:</span>
+                <input
+                  type="text"
+                  placeholder="กรุณากรอกเลข SKU"
+                  name="lot_no"
+                  defaultValue={SKUNo}
                   onChange={(e) =>
-                    localStorage.setItem("name_product", e.target.value)
+                     localStorage.setItem("lot_no", e.target.value)
                   }
                   disabled={!isEdit}
                 />
@@ -186,18 +196,9 @@ const App = () => {
                   name="weight_database"
                   defaultValue={weight}
                   onChange={(e) =>
-                    localStorage.setItem("weight", e.target.value)
+                    localStorage.setItem("weight_database", e.target.value)
                   }
                   disabled={!isEdit}
-                />
-              </div>
-              <div>
-                <span>SKU No.: </span>
-                <input
-                  type="text"
-                  name="SKU_No"
-                  defaultValue={SKUNo}
-                  disabled
                 />
               </div>
               <div>
