@@ -73,7 +73,7 @@ const App = () => {
         // weight_database: weight,
         // amount_pallet: amountPallet,
         SKU_no: localStorage.getItem("lot_no"),
-        weight_database: localStorage.getItem("weight_database"),
+        //weight_database: localStorage.getItem("weight_database"),
         amount_pallet: localStorage.getItem("amount_pallet"),
         // status: "Reject",
       };
@@ -83,8 +83,9 @@ const App = () => {
         .then(() => {
           console.log(data);
           //localStorage.removeItem("name_product");
-          localStorage.removeItem("weight_database");
+          //localStorage.removeItem("weight_database");
           localStorage.removeItem("amount_pallet");
+          localStorage.removeItem("lot_no");
         });
       onClose();
     };
@@ -198,7 +199,7 @@ const App = () => {
                   onChange={(e) =>
                     localStorage.setItem("weight_database", e.target.value)
                   }
-                  disabled={!isEdit}
+                  disabled
                 />
               </div>
               <div>
