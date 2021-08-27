@@ -30,7 +30,7 @@ const App = () => {
         setLotNo(res.data.lot);
         setEffDate(res.data.eff_date);
       } else {
-        alert("เกิดข้อผิดพลาด โปรดตรวจสอบเลขบาร์โค้ดอีกครั้ง");
+        alert("เกิดข้อผิดพลาด โปรดตรวจสอบเลข Transaction อีกครั้ง");
       }
     });
 
@@ -79,7 +79,7 @@ const App = () => {
       };
 
       axios
-        .get(`http://localhost:8000/mode/reject?transacno=${transacno}`, data)
+        .post(`http://localhost:8000/mode/reject/`, data)
         .then(() => {
           console.log(data);
           //localStorage.removeItem("name_product");
